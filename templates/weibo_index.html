@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>微博</title>
+    <style type="text/css">
+        .weibo-table {
+            margin: 0 auto;
+        }
+        .center {
+            text-align: center;
+        }
+        .gua-style {
+            height: 100px;
+            margin: 20px 400px;
+        }
+        .gua-hide {
+            display: none;
+        }
+        .gua-left {
+            float: left;
+            }
+        .gua-right {
+            float: right;
+            }
+    </style>
+    <script src="http://cdn.bootcss.com/jquery/3.1.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="/static/css/pure-min.css">
+</head>
+<body>
+    <script>
+    $(document).ready(function() {
+        $('.gua-show-comment').on('click', function(){
+            var weiboId = $(this).data('id')
+            // var weiboId = this.dataset.id
+            var selector = '#id-div-comment-' + weiboId
+            $(selector).toggleClass('gua-hide')
+         });
+    })
+    </script>
+    <div class="center">
+        <h1>Weibo</h1>
+        <!-- 注意这里 的 url_for 也是需要加上蓝图名字前缀的 -->
+        <form action={{ url_for("weibo.add") }} method="post">
+            <input type="text" placeholder="Add Weibo" name="content">
+            <br>
+            <input type="text" placeholder="Name" name="username">
+            <br>
+            <input class="pure-button pure-button-primary"
+                   type="submit" value="发布">
+        </form>
+    </div>
+    <div class="center">
+        {% for w in weibos %}
+        <div class="gua-style">
+            <div class="gua-left">
+                {{ w.content }}
+                {{ w.created_time }}
+                {{ w.username }}
+                <!-- url_for 可以传递参数，先匹配动态路由，如果动态路由匹配失败则变成 query 参数 -->
+                <!--<td><a href={{ url_for('weibo.delete', weibo_id=w.id) }}>delete</a></td>-->
+                <button class="gua-show-comment" data-id="{{ w.id }}">评论</button>
+            </div>
+            <div id="id-div-comment-{{ w.id }}" class="gua-comment-form gua-right">
+                <form action={{ url_for("comment.add") }} method="post">
+                    <input type="hidden" name="weibo_id" value="{{ w.id }}">
+                    <input name="content" placeholder="Add Comment">
+                    <button>提交评论</button>
+                    <br>
+                    {% for c in w.comment %}
+                        {{ c }}
+                        <br>
+                    {% endfor %}
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
